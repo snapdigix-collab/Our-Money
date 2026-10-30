@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101722">
+  <title>OUR MONEY | Joint Finance</title>
+  <style>
+    :root{--bg:#0b111a;--panel:#121c29;--panel2:#182536;--line:#26364a;--text:#eef4fb;--muted:#91a2b7;--orange:#ff8a00;--green:#36c98f;--red:#ff647c}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    button,input,select{font:inherit} .app{max-width:1100px;margin:auto;padding:22px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:var(--orange);color:#17120a;display:grid;place-items:center;font-size:23px;font-weight:900}
+    h1{font-size:20px;margin:0;letter-spacing:.5px}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .pill{border:1px solid var(--line);border-radius:99px;padding:8px 12px;color:var(--muted);font-size:12px}
+    .notice{background:#302313;border:1px solid #65451d;color:#ffd9a3;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:20px}
+    .welcome{margin:20px 0}.welcome h2{font-size:25px;margin:0 0 7px}.welcome p{color:var(--muted);margin:0;font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+    .card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+    .stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:25px;font-weight:700;margin-top:10px}.positive{color:var(--green)}.negative{color:var(--red)}
+    .content{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}.panel h3{font-size:16px;margin:0 0 16px}
+    .tabs{display:flex;gap:8px;margin-bottom:14px}.tab{border:1px solid var(--line);background:var(--panel2);color:var(--muted);padding:9px 13px;border-radius:10px;cursor:pointer}.tab.active{background:var(--orange);color:#17120a;border-color:var(--orange);font-weight:700}
+    label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
+    input,select{width:100%;background:#0c1420;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--text);outline:none}
+    input:focus,select:focus{border-color:var(--orange)} .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .primary{width:100%;border:0;border-radius:10px;background:var(--orange);color:#17120a;font-weight:700;padding:13px;margin-top:16px;cursor:pointer}
+    .transactions{display:flex;flex-direction:column;gap:10px}.transaction{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;background:var(--panel2);border-radius:12px}
+    .tx-title{font-weight:700;font-size:14px}.tx-meta{font-size:11px;color:var(--muted);margin-top:5px}.tx-amount{font-weight:700;white-space:nowrap}.empty{color:var(--muted);font-size:13px;padding:18px 0}
+    .footer{color:var(--muted);font-size:11px;text-align:center;margin:22px 0 8px}
+    @media(max-width:760px){.app{padding:16px}.grid{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}.stat-value{font-size:22px}}
+    @media(max-width:380px){.row{grid-template-columns:1fr}.pill{font-size:10px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="logo">₹</div><div><h1>OUR MONEY</h1><div class="sub">JOINT FINANCE MANAGER</div></div></div>
+    <div class="pill">● Shared account workspace</div>
+  </header>
+
+  <div class="notice"><strong>Development preview:</strong> This is the first frontend version. Entries currently stay in this browser only. Shared sync and separate secure logins will be connected after we set up Google Apps Script and Google Sheets. Do not enter real banking passwords, PINs or OTPs here.</div>
+
+  <section class="welcome">
+    <h2>Good evening 👋</h2>
+    <p>One place for both of you to track your joint account.</p>
+  </section>
+
+  <section class="grid">
+    <div class="card"><div class="stat-label">CURRENT BALANCE</div><div class="stat-value" id="balance">₹0.00</div></div>
+    <div class="card"><div class="stat-label">TOTAL INCOME</div><div class="stat-value positive" id="income">₹0.00</div></div>
+    <div class="card"><div class="stat-label">TOTAL EXPENSE</div><div class="stat-value negative" id="expense">₹0.00</div></div>
+    <div class="card"><div class="stat-label">TRANSACTIONS</div><div class="stat-value" id="count">0</div></div>
+  </section>
+
+  <section class="content">
+    <div class="panel">
+      <h3>Add a transaction</h3>
+      <div class="tabs">
+        <button class="tab active" id="incomeTab" type="button" onclick="setType('Income')">＋ Income</button>
+        <button class="tab" id="expenseTab" type="button" onclick="setType('Expense')">− Expense</button>
+      </div>
+      <form id="txForm">
+        <div class="row">
+          <div><label for="date">Date</label><input id="date" type="date" required></div>
+          <div><label for="amount">Amount (₹)</label><input id="amount" type="number" min="0.01" step="0.01" placeholder="e.g. 2500" required></div>
+        </div>
+        <label for="category">Category</label>
+        <select id="category" required>
+          <option value="">Select category</option>
+          <option>Salary</option><option>Transfer</option><option>Interest</option><option>Shopping</option><option>Groceries</option><option>Bills</option><option>Travel</option><option>Medical</option><option>Other</option>
+        </select>
+        <label for="description">Description</label>
+        <input id="description" type="text" maxlength="100" placeholder="What was this transaction for?">
+        <label for="addedBy">Added by</label>
+        <select id="addedBy" required><option value="">Select member</option><option>Nitesh</option><option>Kajal</option></select>
+        <button class="primary" type="submit">Save transaction</button>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h3>Recent transactions</h3>
+      <div class="transactions" id="transactions"><div class="empty">No transactions yet. Add your first entry.</div></div>
+    </div>
+  </section>
+  <div class="footer">OUR MONEY • Private family finance tracker • Frontend preview v1.0</div>
+</div>
+<script>
+  // Temporary browser-only demo data. Replace with authenticated Apps Script API later.
+  let currentType = 'Income';
+  let entries = [];
+  const money = n => '₹' + Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('date').value = new Date().toISOString().slice(0,10);
+
+  function setType(type){
+    currentType = type;
+    document.getElementById('incomeTab').classList.toggle('active',type==='Income');
+    document.getElementById('expenseTab').classList.toggle('active',type==='Expense');
+  }
+  function render(){
+    const income = entries.filter(x=>x.type==='Income').reduce((s,x)=>s+x.amount,0);
+    const expense = entries.filter(x=>x.type==='Expense').reduce((s,x)=>s+x.amount,0);
+    document.getElementById('balance').textContent = money(income-expense);
+    document.getElementById('income').textContent = money(income);
+    document.getElementById('expense').textContent = money(expense);
+    document.getElementById('count').textContent = entries.length;
+    const list = document.getElementById('transactions');
+    if(!entries.length){list.innerHTML='<div class="empty">No transactions yet. Add your first entry.</div>';return;}
+    list.innerHTML = '';
+    entries.slice().reverse().forEach((x,index)=>{
+      const item=document.createElement('div'); item.className='transaction';
+      const left=document.createElement('div');
+      const title=document.createElement('div');title.className='tx-title';title.textContent=x.description||x.category;
+      const meta=document.createElement('div');meta.className='tx-meta';meta.textContent=`${x.date} • ${x.category} • ${x.by}`;
+      left.append(title,meta);
+      const right=document.createElement('div');right.className='tx-amount '+(x.type==='Income'?'positive':'negative');
+      right.textContent=(x.type==='Income'?'+':'−')+money(x.amount);
+      item.append(left,right);list.append(item);
+    });
+  }
+  document.getElementById('txForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const amount=Number(document.getElementById('amount').value);
+    if(!Number.isFinite(amount)||amount<=0)return;
+    entries.push({type:currentType,date:document.getElementById('date').value,amount,category:document.getElementById('category').value,description:document.getElementById('description').value.trim(),by:document.getElementById('addedBy').value});
+    e.target.reset();document.getElementById('date').value=new Date().toISOString().slice(0,10);render();
+  });
+  render();
+</script>
+</body>
+</html>
